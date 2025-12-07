@@ -133,8 +133,7 @@ def pending_cleanup_loop():
                 try:
                     bot.send_message(
                         chat_id,
-                        "⏱️ Your previous pending action expired after 5 minutes. "
-                        "Please start again."
+                        "⏱️ Your previous pending action expired after 5 minutes. No action needed."
                     )
                 except Exception:
                     # ignore send errors
