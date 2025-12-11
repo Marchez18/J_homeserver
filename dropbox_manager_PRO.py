@@ -163,66 +163,6 @@ def listar_archivos_y_subcarpetas(path: str):
 
 
 
-def pre_scan_report_old(source_path: str, files, subfolders):
-    """
-    Hace el análisis previo: cuenta archivos, tamaños, extensiones,
-    detecta subcarpetas y estima tiempo.
-    """
-    print("📊 PRE-PROCESSING REPORT")
-    print("----------------------------------------")
-
-    if subfolders:
-        print("⚠ Se han detectado subcarpetas en la ruta indicada:")
-        for folder in subfolders:
-            print(f" - {source_path}/{folder.name}")
-        print("\n❌ Por seguridad, el proceso se detiene. El script solo trabaja con carpetas sin subcarpetas.")
-        return False  # No continuar
-
-    total_files = len(files)
-    print(f"Archivos totales: {total_files}")
-
-    if total_files == 0:
-        print("❌ No hay archivos en la carpeta. Nada que hacer.")
-        return False
-
-    total_size = 0
-    ext_counts = {}
-    video_count = 0
-
-    print("\nDetalle de archivos:")
-    for entry in files:
-        size_mb = entry.size / (1024 * 1024)
-        total_size += entry.size
-        name = entry.name
-        ext = os.path.splitext(name)[1].lower()
-
-        ext_counts[ext] = ext_counts.get(ext, 0) + 1
-
-        if ext in VIDEO_EXTS:
-            video_count += 1
-
-        print(f" - {name} — {size_mb:.2f} MB")
-
-    print("\nExtensiones detectadas:")
-    for ext, count in sorted(ext_counts.items(), key=lambda x: x[0]):
-        print(f" - {ext if ext else '(sin extensión)'} : {count}")
-
-    print(f"\nVídeos detectados (se copiarán sin convertir): {video_count}")
-
-    total_mb = total_size / (1024 * 1024)
-    estimated_seconds = total_mb * SECONDS_PER_MB
-    print(f"\nTamaño total: {human_readable_size(total_size)}")
-    print(f"Tiempo estimado (aprox.): {human_readable_time(estimated_seconds)}")
-
-    print("----------------------------------------")
-    choice = input("¿Deseas continuar con la conversión? (yes/no): ").strip()
-    if choice != "yes":
-        print("Operación cancelada por el usuario.")
-        return False
-
-    return True
-
-
 def pre_scan_report(source_path: str, files, subfolders):
     """
     Hace el análisis previo: cuenta archivos, tamaños, extensiones,
@@ -316,10 +256,27 @@ def pre_scan_report(source_path: str, files, subfolders):
     print(f"\n⏳ Tiempo estimado TOTAL: {human_readable_time(estimated_seconds)}")
 
     print("----------------------------------------")
-    choice = input("¿Deseas continuar con la conversión? (yes/no): ").strip()
-    if choice != "yes":
-        print("Operación cancelada por el usuario.")
-        return False
+    if False:
+        
+        choice = input("¿Deseas continuar con la conversión? (yes/no): ").strip()
+        if choice != "yes":
+            print("Operación cancelada por el usuario.")
+            return False
+        else:
+            return True
+
+    # Pausa breve antes de la cuenta atrás
+    time.sleep(2)
+
+    # ======== CUENTA ATRÁS DE 15 SEGUNDOS ========
+    print("\n🔔 La migración comenzará automáticamente en 15 segundos.\n")
+
+    for i in range(15, 0, -1):
+        print(f"Iniciando en {i} segundos...")
+        time.sleep(1)
+
+    print("\n🚀 Iniciando conversión...\n")
+    # ============================================
 
     return True
 
