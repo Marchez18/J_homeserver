@@ -5,6 +5,9 @@ ENV ACTIVATION
 python3 -m venv venv
 source venv/bin/activate
 
+python3 -m venv ~/J_homeserver
+source ~/J_homeserver/bin/activate
+
 ENV STANDALONE
 ~/python/bin/python3.11 -m venv venv
 source venv/bin/activate
