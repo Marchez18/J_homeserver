@@ -10,17 +10,32 @@ import os
 # CONFIGURACIÓN
 # ======================================
 
-# === Leer ACCESS_TOKEN desde un archivo externo ===
-TOKEN_FILE = "dropbox_token.txt"
+if False: # OLD
+    # === Leer ACCESS_TOKEN desde un archivo externo ===
+    TOKEN_FILE = "dropbox_token.txt"
 
-try:
-    with open(TOKEN_FILE, "r", encoding="utf-8") as f:
-        ACCESS_TOKEN = f.read().strip()
-except FileNotFoundError:
-    raise Exception(f"❌ No se encontró el archivo {TOKEN_FILE}. Crea el archivo con tu token dentro.")
-except Exception as e:
-    raise Exception(f"❌ Error leyendo {TOKEN_FILE}: {e}")
+    try:
+        with open(TOKEN_FILE, "r", encoding="utf-8") as f:
+            ACCESS_TOKEN = f.read().strip()
+    except FileNotFoundError:
+        raise Exception(f"❌ No se encontró el archivo {TOKEN_FILE}. Crea el archivo con tu token dentro.")
+    except Exception as e:
+        raise Exception(f"❌ Error leyendo {TOKEN_FILE}: {e}")
 
+
+def read_secret(path: str) -> str:
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        raise Exception(f"❌ No se encontró el archivo {path}")
+    except Exception as e:
+        raise Exception(f"❌ Error leyendo {path}: {e}")
+
+
+REFRESH_TOKEN = read_secret("dropbox_token_NEW.txt")
+APP_KEY = read_secret("dropbox_app_key.txt")
+APP_SECRET = read_secret("dropbox_app_secret.txt")
 
 SOURCE_FOLDER_NAME = "/Camera Uploads/Test-dng"  # Carpeta origen en Dropbox (sin subcarpetas)
 SOURCE_FOLDER_NAME = "/Camera Uploads/2025"  # Carpeta origen en Dropbox (sin subcarpetas)
@@ -44,7 +59,13 @@ VIDEO_EXTS = {".mp4", ".mov", ".avi", ".mkv", ".m4v", ".wmv"}
 # INICIALIZACIÓN DROPBOX
 # ======================================
 
-dbx = dropbox.Dropbox(ACCESS_TOKEN)
+#dbx = dropbox.Dropbox(ACCESS_TOKEN)
+dbx = dropbox.Dropbox(
+    oauth2_refresh_token=REFRESH_TOKEN,
+    app_key=APP_KEY,
+    app_secret=APP_SECRET,
+)
+
 
 
 def get_folder_path_by_name(folder_path: str) -> str:
