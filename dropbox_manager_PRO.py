@@ -184,7 +184,7 @@ def listar_archivos_y_subcarpetas(path: str):
 
 
 
-def pre_scan_report(source_path: str, files, subfolders):
+def pre_scan_report_old(source_path: str, files, subfolders, dest_files):
     """
     Hace el análisis previo: cuenta archivos, tamaños, extensiones,
     detecta subcarpetas y estima tiempo usando factores calibrados.
@@ -223,7 +223,7 @@ def pre_scan_report(source_path: str, files, subfolders):
             video_count += 1
 
         print(f" - {name} — {size_mb:.2f} MB")
-
+    
     print("\nExtensiones detectadas:")
     for ext, count in sorted(ext_counts.items(), key=lambda x: x[0]):
         print(f" - {ext if ext else '(sin extensión)'} : {count}")
@@ -301,6 +301,115 @@ def pre_scan_report(source_path: str, files, subfolders):
 
     return True
 
+def pre_scan_report(source_path: str, files, subfolders, dest_files):
+    """
+    Análisis previo:
+    - Detecta subcarpetas
+    - Ignora archivos ya migrados
+    - Calcula tamaños y tiempos SOLO de lo pendiente
+    """
+    print("📊 PRE-PROCESSING REPORT")
+    print("----------------------------------------")
+
+    if subfolders:
+        print("⚠ Se han detectado subcarpetas en la ruta indicada:")
+        for folder in subfolders:
+            print(f" - {source_path}/{folder.name}")
+        print("\n❌ Por seguridad, el proceso se detiene.")
+        return False
+
+    pending_files = []
+    total_size = 0
+    ext_counts = {}
+    video_count = 0
+
+    for entry in files:
+        name = entry.name
+        ext = os.path.splitext(name)[1].lower()
+
+        # Nombre esperado en destino
+        if ext in {".jpg", ".jpeg"}:
+            dest_name = name
+        elif ext in VIDEO_EXTS:
+            dest_name = name
+        else:
+            dest_name = os.path.splitext(name)[0] + ".jpg"
+
+        # Si ya existe en destino → ignorar
+        if dest_name.lower() in dest_files:
+            continue
+
+        pending_files.append(entry)
+        total_size += entry.size
+        ext_counts[ext] = ext_counts.get(ext, 0) + 1
+
+        if ext in VIDEO_EXTS:
+            video_count += 1
+
+    if not pending_files:
+        print("✅ Todo ya está migrado. No hay nada pendiente.")
+        return False
+
+    print(f"Archivos pendientes: {len(pending_files)}")
+
+    print("\nExtensiones pendientes:")
+    for ext, count in sorted(ext_counts.items()):
+        print(f" - {ext} : {count}")
+
+    print(f"\nVídeos pendientes: {video_count}")
+    print(f"Tamaño pendiente: {human_readable_size(total_size)}")
+
+    # ============================
+    # ESTIMACIÓN DE TIEMPO
+    # ============================
+
+    FACTOR_DNG_PER_MB = 0.20
+    FACTOR_PNG_PER_MB = 1.50
+    FACTOR_JPG_COPY = 0.05
+    FACTOR_VIDEO_COPY = 0.30
+    OVERHEAD_RATIO = 0.05
+
+    total_dng_mb = 0
+    total_png_mb = 0
+    num_jpg = ext_counts.get(".jpg", 0) + ext_counts.get(".jpeg", 0)
+    num_videos = video_count
+
+    for entry in pending_files:
+        ext = os.path.splitext(entry.name)[1].lower()
+        size_mb = entry.size / (1024 * 1024)
+
+        if ext == ".dng":
+            total_dng_mb += size_mb
+        elif ext == ".png":
+            total_png_mb += size_mb
+
+    time_dng = total_dng_mb * FACTOR_DNG_PER_MB
+    time_png = total_png_mb * FACTOR_PNG_PER_MB
+    time_jpg = num_jpg * FACTOR_JPG_COPY
+    time_vid = num_videos * FACTOR_VIDEO_COPY
+
+    estimated_seconds = (time_dng + time_png + time_jpg + time_vid)
+    estimated_seconds *= (1 + OVERHEAD_RATIO)
+
+    print("\n⏱ Estimación refinada del tiempo restante:")
+    print(f" - Conversión DNG : {human_readable_time(time_dng)}")
+    print(f" - Conversión PNG : {human_readable_time(time_png)}")
+    print(f" - Copia JPG      : {human_readable_time(time_jpg)}")
+    print(f" - Copia vídeos   : {human_readable_time(time_vid)}")
+    print(f" - Overhead (5%)  : incluido")
+
+    print(f"\n⏳ Tiempo estimado TOTAL restante: {human_readable_time(estimated_seconds)}")
+    print("----------------------------------------")
+
+    time.sleep(2)
+    print("\n🔔 La migración comenzará en 15 segundos...\n")
+
+    for i in range(15, 0, -1):
+        print(f"Iniciando en {i} segundos...")
+        time.sleep(1)
+
+    print("\n🚀 Iniciando conversión...\n")
+    return True
 
 
 def convert_folder_to_jpg():
@@ -310,13 +419,16 @@ def convert_folder_to_jpg():
     # Listar archivos y subcarpetas
     files, subfolders = listar_archivos_y_subcarpetas(source_path)
 
-    # Informe previo y confirmación
-    if not pre_scan_report(source_path, files, subfolders):
-        return
-
     # Carpeta destino
     dest_path = source_path + DEST_SUFFIX
     ensure_folder_exists(dest_path)
+
+    # Archivos ya existentes en destino (para resume)
+    dest_files = listar_archivos_destino(dest_path)
+
+    # Pre-scan REAL (solo lo pendiente)
+    if not pre_scan_report(source_path, files, subfolders, dest_files):
+        return
 
     total_files = len(files)
 
@@ -489,6 +601,26 @@ def listar_todas_carpetas_root():
         for entry in result.entries:
             if isinstance(entry, dropbox.files.FolderMetadata):
                 print(" -", entry.name)
+
+
+def listar_archivos_destino(path: str) -> set:
+    files = set()
+    try:
+        result = dbx.files_list_folder(path)
+    except dropbox.exceptions.ApiError:
+        return files  # carpeta no existe aún
+
+    while True:
+        for entry in result.entries:
+            if isinstance(entry, dropbox.files.FileMetadata):
+                files.add(entry.name.lower())
+
+        if not result.has_more:
+            break
+        result = dbx.files_list_folder_continue(result.cursor)
+
+    return files
+
 
 
 if __name__ == "__main__":
