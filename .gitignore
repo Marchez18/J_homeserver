@@ -1,1 +1,4 @@
 dropbox_token.txt
+dropbox_app_key.txt
+dropbox_app_secret.txt
+*.txt

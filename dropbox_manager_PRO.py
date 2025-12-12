@@ -33,9 +33,24 @@ def read_secret(path: str) -> str:
         raise Exception(f"❌ Error leyendo {path}: {e}")
 
 
+print("🔐 Cargando credenciales de Dropbox...")
+
+print(" - Cargando refresh token...")
 REFRESH_TOKEN = read_secret("dropbox_token_NEW.txt")
+time.sleep(2)
+print("   ✔ Refresh token cargado")
+
+print(" - Cargando app key...")
 APP_KEY = read_secret("dropbox_app_key.txt")
+time.sleep(2)
+print("   ✔ App key cargada")
+
+print(" - Cargando app secret...")
 APP_SECRET = read_secret("dropbox_app_secret.txt")
+time.sleep(2)
+print("   ✔ App secret cargado")
+
+print("🔓 Credenciales cargadas correctamente\n")
 
 SOURCE_FOLDER_NAME = "/Camera Uploads/Test-dng"  # Carpeta origen en Dropbox (sin subcarpetas)
 SOURCE_FOLDER_NAME = "/Camera Uploads/2025"  # Carpeta origen en Dropbox (sin subcarpetas)
