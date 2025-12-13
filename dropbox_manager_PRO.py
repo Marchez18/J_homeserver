@@ -643,3 +643,6 @@ if __name__ == "__main__":
     # listar_todas_carpetas_root()
 
     convert_folder_to_jpg()
+    while True:
+        print("Esperando 5h...")
+        time.sleep(3600 * 5)
