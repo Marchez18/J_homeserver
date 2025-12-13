@@ -54,11 +54,12 @@ print("🔓 Credenciales cargadas correctamente\n")
 
 SOURCE_FOLDER_NAME = "/Camera Uploads/Test-dng"  # Carpeta origen en Dropbox (sin subcarpetas)
 SOURCE_FOLDER_NAME = "/Camera Uploads/2025"  # Carpeta origen en Dropbox (sin subcarpetas)
+SOURCE_FOLDER_NAME = "/Camera Uploads/2024"  # Carpeta origen en Dropbox (sin subcarpetas)
 
 
 # Carpeta destino = origen + "-jpg"
 # Ej: "/Camera Uploads/2025-jpg"
-DEST_SUFFIX = "-jpg"
+DEST_SUFFIX = "-jpg2"
 
 # Velocidad de referencia (tu dato): 260 MB -> 100 s
 # => ~0.3846 s/MB
