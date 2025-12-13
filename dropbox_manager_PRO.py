@@ -59,7 +59,7 @@ SOURCE_FOLDER_NAME = "/Camera Uploads/2024"  # Carpeta origen en Dropbox (sin su
 
 # Carpeta destino = origen + "-jpg"
 # Ej: "/Camera Uploads/2025-jpg"
-DEST_SUFFIX = "-jpg2"
+DEST_SUFFIX = "-jpg"
 
 # Velocidad de referencia (tu dato): 260 MB -> 100 s
 # => ~0.3846 s/MB
