@@ -6,8 +6,8 @@ import time
 # CONFIGURACIÓN
 # ==========================
 
-SOURCE_FOLDER = "/Camera Uploads/2022"
-DEST_FOLDER = "/Camera Uploads/2022-jpg"
+SOURCE_FOLDER = "/Camera Uploads/2019"
+DEST_FOLDER = "/Camera Uploads/2019-jpg"
 
 RAW_EXTS = {".dng", ".nef", ".cr2", ".arw", ".rw2", ".png", ".webp"}
 JPG_EXTS = {".jpg", ".jpeg"}
