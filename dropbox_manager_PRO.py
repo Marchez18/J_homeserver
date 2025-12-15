@@ -59,7 +59,8 @@ SOURCE_FOLDER_NAME = "/Camera Uploads/2020"  # Carpeta origen en Dropbox (sin su
 SOURCE_FOLDER_NAME = "/Camera Uploads/2019"  # Carpeta origen en Dropbox (sin subcarpetas)
 SOURCE_FOLDER_NAME = "/Camera Uploads/2018"  # Carpeta origen en Dropbox (sin subcarpetas)
 SOURCE_FOLDER_NAME = "/Camera Uploads/2017"  # Carpeta origen en Dropbox (sin subcarpetas)
-SOURCE_FOLDER_NAME = "/Camera Uploads/2016"  # Carpeta origen en Dropbox (sin subcarpetas)
+SOURCE_FOLDER_NAME = "/Camera Uploads/2016"  # Carpeta origen en Dropbox (sin subcarpetas) NOOOO
+SOURCE_FOLDER_NAME = "/Camera Uploads/2015"  # Carpeta origen en Dropbox (sin subcarpetas)
 
 
 # Carpeta destino = origen + "-jpg"
